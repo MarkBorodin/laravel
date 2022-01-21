@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Task;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
@@ -13,7 +14,10 @@ class TaskController extends Controller
      */
     public function index()
     {
-        return 'TaskController method index';
+        $tasks = Task::all();
+
+        return view('pages.index', compact('tasks'));
+
     }
 
     /**
@@ -23,7 +27,7 @@ class TaskController extends Controller
      */
     public function create()
     {
-        return 'TaskController method create';
+        return view('pages.create');
     }
 
     /**
@@ -34,7 +38,21 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        return 'TaskController method store';
+        $this->validate($request,[
+            'title' => 'required|string',
+            'content' => 'required|string',
+            'status_id' => 'required|numeric',
+        ]
+        );
+
+        # new task
+        $task = new Task();
+        $task->title = $request->post('title');
+        $task->content = $request->post('content');
+        $task->status_id = $request->post('status_id');
+        $task->creator_id = '1';
+        $task->save();
+        return redirect(route('tasks.index'));
     }
 
     /**
@@ -45,7 +63,9 @@ class TaskController extends Controller
      */
     public function show($id)
     {
-        return 'TaskController method show';
+        $task = Task::whereId($id)->first();
+
+        return view('pages.show', compact('task'));
     }
 
     /**
@@ -56,7 +76,9 @@ class TaskController extends Controller
      */
     public function edit($id)
     {
-        return 'TaskController method edit';
+        $task = Task::whereId($id)->first();
+
+        return view('pages.edit', compact('task'));
     }
 
     /**
@@ -68,7 +90,19 @@ class TaskController extends Controller
      */
     public function update(Request $request, $id)
     {
-        return 'TaskController method update';
+
+        $this->validate($request,[
+            'title' => 'required|string',
+            'content' => 'required|string',
+            'status_id' => 'required|numeric',
+        ]);
+
+        $task = Task::whereId($id)->first();
+        $task->title = $request->post('title');
+        $task->content = $request->post('content');
+        $task->status_id = $request->post('status_id');
+        $task->save();
+        return redirect(route('tasks.index'));
     }
 
     /**
